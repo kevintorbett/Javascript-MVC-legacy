@@ -1,0 +1,758 @@
+jQuery.extend({
+  /**
+   * @class      aaiadownloads.Controller
+   * @namespace  aaiadownloads   
+   * @extend     jQuery      
+   * @description     
+   * The Controller handles the events for the application, 
+   * but only application specific events not widget related plug-in events.  
+   * Those events are usually handled by the plug-in.       
+   * 
+   * @constructor   
+   *       
+   * @param (Object) Model model object
+   * @param (Object) View view object
+   *
+   * @author     Kevin Torbett
+   * @version    0.0.1
+   * @history  
+   * <p>
+   * version   0.0.1 {Kevin} <br/>
+   * &nbsp; - initial creation<br/>
+   * </p> 
+   * <br/>     
+   * 
+   * @example 
+   * var controller = new jQuery.Controller(new jQuery.Model(), new jQuery.View());<br/>
+   * controller.init();<br/>     
+   */     
+  Controller: function(model, view){
+    /**
+     * Self reference for internal use only. (that = this)   
+     *     
+     * @private            
+	   * @property   that
+	   * @type   (Object)	   
+	   */
+    
+    /** 
+     * @private	        
+     * @cfg   (Object)    load_css_files
+     * An array of css external files to load  
+  	 */
+    
+    /** 
+     * @private	        
+     * @cfg   (Object)    load_script_files
+     * An array of js external files to load           
+  	 */
+
+    var that = this; 
+    var load_css_files = [];
+    var load_script_files = [];
+           
+    /**
+     * Contains the overloaded methods for the view listener.  It's used for setting up event handling.    
+	   *
+	   * @property      vlist 
+	   * @private	   
+	   * @type          (Object)  view listener event handling functions 	   
+	   */
+		var vlist = view.createListener({
+		  /**
+       * Handles the view request for a content  dataset.
+       *        
+       * @note        
+       * <i>view</i>: nothing <br/>
+       * <i>model</i>: fetch the content dataset<br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method    fetchContentData
+	     * @param     (Object)      p_data_info         data info object (grid name, container, etc)
+		   * @param     (Object)      p_pagination_info   pagination info object
+		   * @param     (Object)      p_search_info       search filter info object	  
+		   *    
+	     */ 
+		  fetchAaiaInformation: function(p_data_info, p_pagination_info, p_search_info) {
+         model.fetchAaiaInformation( p_data_info, p_pagination_info, p_search_info );
+      },
+    		  /**
+       * Handles the request from the view to open the data source aaia conatiner
+       *        
+       * @note        
+       * <i>view</i>: open the data source menu container <br/>
+       * <i>model</i>: nothing <br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method    openDataSourceAaiaDialog
+	     * @param     (Integer)     p_id         aaia id
+	     *    
+	     */ 
+		  openDataSourceAaiaDialog: function(p_id) {
+        view.openDataSourceAaiaDialog( p_id, model.getRoles() );
+      },
+      
+		  /**
+       * Handles the view request for a aaia  dataset.
+       *        
+       * @note        
+       * <i>view</i>: nothing <br/>
+       * <i>model</i>: fetch the aaia dataset<br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method    fetchAaiaData
+	     * @param     (Object)      p_data_info         data info object (grid name, container, etc)
+		   * @param     (Object)      p_pagination_info   pagination info object
+		   * @param     (Object)      p_search_info       search filter info object	  
+		   *    
+	     */ 
+		  fetchAaiaData: function(p_data_info, p_pagination_info, p_search_info) {
+        model.fetchAaiaInformation( p_data_info, p_pagination_info, p_search_info );
+      },
+		  /**
+       * Handles the view request for a datasource id.
+       *        
+       * @note        
+       * <i>view</i>: nothing <br/>
+       * <i>model</i>: fetch the datasource id<br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method        fetchDatasourceTokenId
+	     * @param     (String)      p_title             msg box title 
+	     *         
+	     */  
+      fetchDatasourceTokenId: function(p_title, p_caller) {
+        model.fetchDatasourceTokenId( p_title, p_caller);
+      },
+      /**
+       * Handles the request download for aaia
+       *        
+       * @note        
+       * <i>view</i>: nothing <br/>
+       * <i>model</i>: fetch the requested data<br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method        fetchTokenAppid
+	     * @param      (string)      p_token      null
+	     * @param      (Integer)      p_appid      null	     
+	     * 	     
+	     */  
+      fetchTokenAppid: function(  p_aaia_id  ){
+        	    view.startAaiaDownload( p_aaia_id, model.getAuthorizationToken(), model.getApplicationId() ); 
+  
+      },
+      /**
+       * Handles the view CSS load start event.
+       *        
+       * @note        
+       * <i>view</i>: nothing<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: call loadCss private method<br/>  
+       *                    
+	     * @method        loadCssBegin	     
+	     * @param        (Array)   p_files script list
+	     */  
+      loadCssBegin: function(p_files){
+			  loadCss( p_files );
+      },
+      /**
+       * Handles the view CSS load completion event.
+       *        
+       * @note       
+       * <i>view</i>: show overlay message, request next css load<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: loads CCS files from list until done. 
+       * Upon loading the last file, it performs one of two execution paths.<br/>  
+       *                       
+	     * @method        loadCssFinish
+	     */
+			loadCssFinish: function(){
+			  load_css_files.shift();
+        if (load_css_files.length > 0){
+          view.notifyLoadCssBegin( load_css_files );
+			  }else{
+          view.notifyLoadScriptBegin( load_script_files );
+        }	
+			},
+       
+			/**
+			 * Handles the view CSS removal completion event.
+       *        
+       * @note       
+       * <i>view</i>: show overlay of message<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: unload CSS files until done, 
+       * then unload the JavaScript files from application<br/>  
+       *             
+	     * @method       loadCssRemoveFinish   
+  	   */
+			loadCssRemoveFinish: function(){
+			  load_css_files.shift();
+			  if (load_css_files.length > 0){
+          unloadCss( load_css_files );
+			  }else{
+          unloadScripts( load_script_files );
+        }	
+			},
+			/**
+	     * Handles the view JavaScript load start event.
+       *        
+       * @note       
+       * <i>view</i>: nothing<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: load JavaScript files<br/>  
+       *             	     
+	     * @method       loadScriptBegin	
+	     * @param        (Array)   p_files script list
+	     */
+      loadScriptBegin: function(p_files){
+			  loadScripts( p_files );
+      },
+			/**
+       * Handles the view JavaScript load completion event.
+       *        
+       * @note       
+       * <i>view</i>: show overlay message, request next script load<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: loads JavaScript files from list until done. 
+       * Upon loading the last file, it performs one of two execution paths.<br/>  
+       *          	         
+	     * @method       loadScriptFinish
+	     */
+      loadScriptFinish: function() {
+        load_script_files.shift();
+			  if (load_script_files.length > 0){
+			    view.notifyLoadScriptBegin( load_script_files );
+			  }else{
+          view.notifyBodyBegin();
+        }	
+			},
+			/**   
+			 * Handles the view JavaScript removal completion event. 
+			 * It resets the application to a zero state.
+       *      
+       * @note         
+       * <i>view</i>: show overlay of message, reset to login state<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: unload JavaScript files until done. resets to zero state<br/>  
+       *          
+	     * @method       loadScriptRemoveFinish
+	     */
+      loadScriptRemoveFinish: function() {
+        load_script_files.shift();
+			  if (load_script_files.length > 0){
+          unloadScripts( load_script_files );
+			  }else{
+			    if (window.parent.controller){
+  			    //send message to parent app
+            window.parent.controller.childAlert(
+              'Application Name',
+              'Application is closed...',
+              1,
+              3000,
+              false);
+          }
+        }
+      },
+		
+			/**       
+			 * Handles the view load body start event. 
+       *        
+       * @note       
+       * <i>view</i>: build the user layout<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: determine what layout to build. {defaults = desktop}<br/>  
+       *           	                   
+	     * @method        loadBodyBegin
+	     */  
+      loadBodyBegin: function(){
+        view.buildBodyHTML();
+      },
+      /**
+       * Handles the view load body completion event. 
+       *        
+       * @note       
+       * <i>view</i>: triggers that the body is ready to be initialize<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: nothing<br/>  
+       *                   
+	     * @method        loadBodyFinish
+	     */  
+      loadBodyFinish: function(){
+			  view.notifyInitializeObjects();
+      },
+      /**
+			 * Handles the view application object initialization event. 
+       *     
+       * @note          
+       * <i>view</i>: initialize application objects<br/>
+       * <i>model</i>: fetch the submmission and  file generator types <br/>    
+       * <i>local</i>: nothing<br/>  
+       *                    
+	     * @method        enableObjects
+	     */
+      initializeObjects: function (){
+         view.initializeObjects( model.getRoles() );  
+      },
+      /**
+       * Handles the view application object ready event. 
+       *    
+       * @note           
+       * <i>view</i>: destroy overlay<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: initialize application control key handling<br/>  
+       *                        
+	     * @method        viewReady
+	     */
+      viewReady: function (){
+        //initializeCtrlEvent();
+      },
+      /**
+       * Handles the view request to display a notice based on the message id
+       *    
+       * @note           
+       * <i>view</i>: nothing<br/>
+       * <i>model</i>: gets the message object<br/>    
+       * <i>local</i>: nothing<br/>  
+       *                        
+	     * @method        removeMessages
+	     */
+      saveApplicationSettings: function(p_obj){
+        //window.parent.controller.updateChildSettings(location,'FETCH_INTERVAL',p_obj.fetchInterval);
+        //model.setApplicationSettingValue('FETCH_INTERVAL',p_obj.fetchInterval);
+      } 
+		});
+		
+
+		/**
+		 * Contains the overloaded methods for the model listener.  It's used for setting up event handling. 
+		 *         
+	   * @property      mlist 
+	   * @private	   
+	   * @type          Object model listener event handling functions 	   
+	   */
+		var mlist = model.createListener({  
+		  /**
+       * Handles the request from the view to open the data source aaia conatiner
+       *        
+       * @note        
+       * <i>view</i>: nothing <br/>
+       * <i>model</i>: fetch the aaia information <br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method    fetchAaiaInformationFinish
+	     *
+       * @param     (Object)      p_data              aaia info object
+       * @param     (Integer)     p_aaia_id        aaia id		        
+       * @param     (String)      p_type              "pcdb" or "vcdb"      
+       * @param     (String)      p_count             iteration count used to toggle the data state  
+	     */ 
+		  fetchAaiaInformationFinish: function(p_data_id, p_datafiles, p_name, p_container) {
+		    view.loadGrid( p_data_id, p_name, p_datafiles, p_container );
+      },
+      
+		  /**
+       * Handles the model application aaia dataset fetch completion event
+       *        
+       * @note        
+       * <i>view</i>: load grid <br/>
+       * <i>model</i>: nothing <br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method     fetchAaiaDataFinish
+	     * @param         (Integer)  p_data_id          datasourceid 	     
+	     * @param     (Object)       p_datafiles        aaia data object
+	     * @param     (String)       p_name             grid name
+         * @param     (Object)       p_container        grid container object    
+	     */  
+		  fetchAaiaDataFinish: function(p_data_id, p_datafiles,  p_name, p_container) {
+		    switch ( p_name ) {
+          case 'aaia_vcdb':
+            view.loadGrid( p_data_id, p_name, p_datafiles, p_container );
+            break;
+           
+          case 'aaia_pcdb':
+            view.loadGrid( p_data_id, p_name, p_datafiles, p_container );
+            break;
+           case 'aaia_qdb':
+            view.loadGrid( p_data_id, p_name, p_datafiles, p_container );
+            break;    
+          default:
+            
+        } 
+		  },
+    /**
+    * Handles the model file properties fetch completion event
+    *        
+    * @note        
+    * <i>view</i>: openFilePropertiesDialog<br/>
+    * <i>model</i>: nothing <br/>    
+    * <i>local</i>: nothing <br/>  
+    *                    
+		* @method     fetchItemDataSourceAaiaDataFinish
+		* @param     (Object)     p_data       aaia data object    		 
+		*            
+		*/  
+		fetchItemDataSourceAaiaDataFinish: function( p_data ) {
+        view.openFilePropertiesDialog( p_data);
+      },
+      
+       /**
+       * Handles the model generic error event
+       *        
+       * @note        
+       * <i>view</i>: displayErrorMessageDialog <br/>
+       * <i>model</i>: nothing <br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method     dislayErrorMessageDialog
+	     * @param      (String)     p_title       dialog title
+	     * @param      (String)     p_msg         error message text      	     
+	     * @param     (Object)      p_xhr         HTTPRequest object  
+	     * @param     (String)      p_err         error response text	                     		 
+		   * 
+	     */  
+      dislayErrorMessageDialog: function (p_title,p_msg, p_xhr, p_err){
+        view.displayErrorMessageDialog(p_title,p_msg, p_xhr, p_err);
+      },
+
+      /**
+       * Handles the workqueue fetch failed event
+       *        
+       * @note        
+       * <i>view</i>: load the grid <br/>
+       * <i>model</i>: nothing <br/>    
+       * <i>local</i>: nothing <br/>  
+       *                    
+	     * @method     fetchAaiaFailed
+	     * @param     (Object)      p_xhr        XMLHttpRequest object  
+	     * @param     (String )     p_msg                             		 
+		   * @param     (String)   		p_err       Exception 
+	     */  
+      fetchAaiaFailed: function(p_xhr,p_msg,p_err){
+        var l_aaia=p_msg.substr(0,1).toUpperCase()+p_msg.substr(1)+':';
+        view.setDialogMsg('Error fetching Aaia data',l_aaia, p_xhr.responseText,2,getStandardDialogOptions(),true);
+        closeProgessOverlay();
+       },
+       
+		  /**
+       * Handles the model datasource id token fetch success state 
+       * 
+       * @note       
+       * <i>view</i>: continue to file upload process <br/>
+       * <i>model</i>: nothing <br/>    
+       * <i>local</i>: nothing<br/>    
+       *        
+  		 * @method    fetchDatasourceTokenIdFinish
+  		 * @param     (Object)      p_data          datasource object  
+		   * @param     (String)      p_title         msg box title 
+  		 *          		 
+  	   */
+       fetchDatasourceTokenIdFinish: function(p_data, p_title, p_caller) {
+        view.uploadMetaData( p_data.id, p_title, p_caller);
+      },
+       /**
+       * Handles the model application validation completion event
+       * 
+       * @note       
+       * <i>view</i>: load the css files, build the appplcation aaia<br/>
+       * <i>model</i>: fetch the applications info<br/>    
+       * <i>local</i>: nothing<br/>    
+       *        
+  		 * @method         validateApplicationFinish
+  	   */
+       validateApplicationFinish: function(p_su){ 
+        //view.setFetchInterval(model.getApplicationSettingValue('FETCH_INTERVAL'));      
+        view.notifyLoadCssBegin( load_css_files );
+        view.setUserType( p_su );
+      },
+      /**
+       * Handles the model application validation failed event
+       * 
+       * @note       
+       * <i>view</i>: nothing<br/>
+       * <i>model</i>: nothing<br/>    
+       * <i>local</i>: redirect the page to Main Portal<br/>    
+       *        
+  		 * @method        validateApplicationFailed
+  		 * @param         (p_type)      1=try catch related error <br/>
+  		 *                              2=no roles <br/>
+  		 *                              else authentication error       
+  		 */
+  	   validateApplicationFailed: function(p_type){
+        switch ( p_type ){
+          case 1:
+            window.location.replace(location.protocol+'//'+location.host+'/activant/errors/authentication_error.html');
+            break;
+            
+          case 2:
+            window.location.replace(location.protocol+'//'+location.host+'/activant/errors/noroles.html');
+            break;
+            
+          default:
+            window.location.replace(location.protocol+'//'+location.host+'/activant/errors/access_error.html');
+        } 
+      },
+		/**
+		 * Handles the model send message request event.
+		 * 
+		 * @note       
+		 * <i>view</i>: request message<br/>
+		 * <i>model</i>: nothing<br/>    
+		 * <i>local</i>: nothing<br/>    
+		 *        
+		   * @method         sendAlert
+		   * @param       (String)  p_title    message title
+		   * @param       (String)  p_aaia  message aaia	 
+		   * @param       (Integer) p_type     message type {0='norm',1='alert',2='important'}       
+		   * @param       (Integer) p_duration message duration
+		   * @param       (Boolean) p_sticky   message posting type (sticky)  
+		   */
+		sendAlert: function (p_title, p_aaia, p_type, p_duration, p_sticky){
+		  window.parent.controller.childAlert( p_title, p_aaia, p_type, p_duration, p_sticky );
+		  }
+	});
+	
+    
+    //----- Private Methods -----//
+    /**
+    * Returns the css file array
+    *          
+	* @method         
+	* @private		 getCssFiles
+	* @return       (Object)      file array 
+	*/     
+    function getCssFiles(){ 
+      return [
+        "../../jquery/ui/jquery-ui-1.8.17.custom/css/redmond/jquery-ui-1.8.17.custom.min.css",
+        "../../jquery/plugins/grid/jqGrid-4.4/css/ui.jqgrid.min.css",
+        "../../jquery/plugins/grid/jqGrid-4.0/plugins/activant.jqGrid.search.2.0.min.css",
+        "../../jquery/plugins/tree/ui-tree-widget-1.0/css/tree.min.css",
+        "../../jquery/plugins/context/contextmenu-1.1/css/jquery.contextmenu.min.css"//new
+      ];
+    }
+    
+    /**
+    * Returns the script file array
+    *          
+	* @method         
+	* @private		 getScriptFiles
+	* @return       (Object)      file array 
+	*/     
+    function getScriptFiles(){
+      return [
+       "../../jquery/ui/jquery-ui-1.8.17.custom/js/jquery-ui-1.8.17.custom.min.js", 
+  	   "../../jquery/plugins/layout/layout-1.2.0/js/jquery.layout.min.js",
+  	   "../../jquery/plugins/tips/beautytips-0.9.5-rc1/js/jquery.bt.act.min.js",
+       "../../jquery/plugins/grid/jqGrid-4.4/js/i18n/grid.locale-en.js",
+       "../../jquery/plugins/grid/jqGrid-4.4/js/jquery.jqGrid.min.js",
+       "../../jquery/plugins/grid/jqGrid-4.0/plugins/activant.jqGrid.search.2.0.min.js",
+       "../../jquery/plugins/tree/ui-tree-widget-1.0/js/tree.min.js",
+       "../../jquery/plugins/context/contextmenu-1.1/js/jquery.contextmenu.min.js" //new
+      ];
+    } 
+	    
+    /**
+    * Handles the loading of external css files 
+    *          
+	* @method         loadCss
+	* @private		 
+	* @param         (Array)   p_files list of css files 		 
+	*/     
+    function loadCss(p_files){
+      if (p_files.length > 0){
+        view.getCss( p_files[0] );
+      }
+    } 
+    
+    /**
+    * Handles the loading of external javascript files 		
+    *         
+	* @method        loadScripts
+	* @private		 
+	* @param         (Array)   p_files list of javascript files		 
+	*/     
+    function loadScripts(p_files){
+      if (p_files.length > 0){
+        view.getScript( p_files[0] );
+      }
+    }
+    
+    /**
+    * Handles the unloading of external css files 
+    * @private		        
+	* @method         unloadCss
+	* @param         (Array) p_files list of script files 		 
+	*/     
+    function unloadCss(p_files){
+      if (p_files.length > 0){
+        view.removeCss( p_files[0] );
+      }
+    } 
+    
+    /**
+     * Handles the unloading of external javascript files 
+     *         
+		 * @method        unloadScripts
+		 * @private		 
+		 * @param         (Array) p_files list of script files		 
+		 */     
+    function unloadScripts(p_files){
+      if (p_files.length > 0){
+        view.removeScript( p_files[0] );
+      }
+    }
+     /**
+		 * Closes the view's overlay when the processing has already been set
+		 * 
+		 * @private
+		 * @method                     
+	   */
+    function closeProgessOverlay(){
+     // if (view.getProcessingState()){
+     //   view.hideProgressMsg();
+    //  }else{
+        jQuery(that)
+          .stop("overlay")
+          .delay(500,'overlay')
+          .queue("overlay", function(){       
+            closeProgessOverlay();
+          }).dequeue("overlay");
+  //    }
+    }
+    /**
+		 * Sets the dialog options for display purposes and (cleans up on close)
+		 * 
+		 * @private	
+		 * @method	  getStandardDialogOptions
+		 * @return   (Object) standard dailog options                          
+	   */
+    function getStandardDialogOptions(){
+      return {
+            resizable: false,
+      		minHeight:175,
+			maxHeight:300,
+            width:350,
+      		modal: true,
+			buttons:{
+          	  Close: function() {
+          		  jQuery( this ).dialog( "close" );
+          		}
+			  },
+			 close: function(ev, ui) { 
+					jQuery(this).remove();
+			  }  
+			};
+    }
+	/**
+	* Copcdb an array for source to target
+ 	* 
+	* @private
+	* @method        copyArray
+	* @param         (Array) p_src list of files
+	* @param         (Array) p_trg list of files	
+	*/ 	
+	function copyArray(p_src, p_trg){
+		  jQuery.each( p_src, function(id, val){
+        p_trg[id] = val;
+      });
+    }
+    
+    /**
+    * Cleans the DOM object and it's child of events, etc
+    * 
+    * @private	             
+	* @method        purgeDomNode	 
+	* @param         (Object)    p_elem      native DOM element
+	*/                           
+    function purgeDomNode(p_elem){
+      var l_attrs = p_elem.attributes;
+      var i = 0;
+      var l_len = 0;
+      var l_name = '';
+      
+      if (l_attrs) {
+        l_len = l_attrs.length;
+        for (i = 0; i < l_len; i++) {
+          l_name = l_attrs[i].name;
+          if (jQuery.isFunction( p_elem[l_name] )) {
+            p_elem[l_name] = null;
+          }
+        }
+      }
+      
+      l_attrs = p_elem.childNodes;
+      if (l_attrs) {
+        l_len = l_attrs.length;
+        for (i = 0; i < l_len; i++) {
+          purgeDomNode( p_elem.childNodes[i] );
+        }
+      }
+    }  
+
+    // Add listener to MV objects
+    view.addListener(vlist); 
+    model.addListener( mlist );
+    
+		/**
+     * Initial trigger to start the application. 
+     *             
+	   * @method        init	  
+	   * @note
+	   * <i>view</i>: nothing <br/>
+     * <i>model</i>: validates the application   <br/> 
+     * <i>local</i>: back-up file lists   <br/>                   
+     */ 
+    this.init = function(){
+      // setup the files css/js files to be loaded
+      copyArray( getScriptFiles(), load_script_files );
+      copyArray( getCssFiles(), load_css_files );
+      
+      // set baseURL 
+      model.setBaseURL( location.protocol+'//'+location.host+'/IMDBMiddlewareService/api' );
+        
+      //setup unload, remove the css, scripts
+      jQuery(window)
+        .unbind('unload')
+        .bind('unload', function(){
+          purgeDomNode( jQuery('body').get(0) );
+          
+          var l_obj = getScriptFiles();
+          l_obj.push("./js/controller-aaiadownloads.js");
+          l_obj.push("./js/view-aaiadownloads.js");
+          l_obj.push("./js/model-aaiadownloads.js");
+          l_obj.push("../../jquery/core/jquery-1.6.2.min.js");
+          copyArray( l_obj, load_script_files );
+          l_obj = null;
+          
+          l_obj = getCssFiles();
+          l_obj.push("./css/aaiadownloads_layout.css");
+          l_obj.push("./css/aaiadownloads_general.css");
+          copyArray( l_obj, load_css_files );      
+          l_obj = null;
+          unloadCss( load_css_files );
+          
+          //
+          view.cleanSelf();
+          model.cleanSelf();
+          model = null;
+          view = null;
+         
+          that = null;
+          load_css_files = null;
+          load_script_files = null;
+          vlist = null;
+          mlist = null;          
+        });
+      
+      // delay a bit before authenticating
+      jQuery(that)
+          .stop("overlay")
+          .delay(500,'overlay')
+          .queue("overlay", function(){ 
+            model.validateApplication(); 
+          }).dequeue("overlay"); 
+    }        
+    
+  }
+});

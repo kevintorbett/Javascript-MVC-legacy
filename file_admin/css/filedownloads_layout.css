@@ -1,0 +1,221 @@
+
+p {padding-left:5px;}
+/*
+*	COMMON LAYOUT PANE FORMATTING
+*/
+.pane ,				/* outer pane class */
+.ui-layout-pane {	/* inner pane class */
+	background-color: #FFF;
+	border: 1px solid #777;
+	padding: 0;/* alignment & padding is on the inner-divs */
+	overflow: auto; /* will be auto-set to 'hidden' for any pane with a 'scrolling content div' */
+}
+
+
+ul.header-toolbar {
+	position:	absolute;
+	overflow:	hidden; /* required to CONTAINER 'floating li' in FF */
+	height:		auto;
+	margin:		0;
+	padding:	0px;
+	width:		100%;
+	list-style:	none;
+	text-align: left;
+	border-top: 1px solid #BBB;
+}
+
+ul.header-toolbar li {
+  font-size: 0.9em;
+	margin: 0;
+	padding: 0px 7px;
+	float: right;
+	color: #000;
+	border: 1px solid transparent;
+	border-right-color: #BBB;
+	cursor: pointer;
+}
+
+ul.header-toolbar li:hover {
+  color: #005;
+	background: #EEE url(../images/layout/eeeeee_40x100_textures_02_glass_90.png) 0 50% repeat-x;
+	border-top-color: #BBB;
+	border-bottom-color: #BBB;
+}
+
+/*
+*	OUTER-LAYOUT PANE FORMATTING
+*/
+.pane-north ,
+.pane-south ,
+.pane-west ,
+.pane-east {
+	overflow:		hidden;
+}
+
+.pane-north {
+  background-color: transparent !important;
+	border-bottom:	none;
+}
+
+.pane-west{
+	border-right: none;
+}
+
+.pane-west .content{
+	overflow:		hidden !important;
+}
+
+
+
+.pane-south .content {
+	text-align: center;
+}
+
+.pane-center {
+	/* show off the inner-layout inside the outer-center-pane*/
+	background-color: #FFF;
+	padding: 0px; /* for outer layout */
+	border-top: 1px solid #777;
+	border-right: none;
+  border-bottom: none;
+  border-left: none;
+  border: 1px solid #777;
+ /* background: #DFEFFC url(images/ui-bg_glass_85_dfeffc_1x400.png) 50% 50% repeat-x;*/
+}
+
+/* inner divs inside Outer East/West panes */
+.header { 
+	border-bottom: 1px solid #777;
+	font-size: 14px;
+  font-weight: bold;
+	text-align: center;
+	padding: 2px 0 4px;
+	position: relative;
+	overflow: hidden;
+}
+
+.subhead ,
+.footer {
+	background: #d6d6d6 url(../images/layout/d6d6d6_40x100_textures_02_glass_80.png) 0 50% repeat-x;
+	padding: 3px 10px;
+	font-size: 12px;
+	position: relative;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.subhead { border-bottom: 1px solid #777; }
+.footer  { border-top: 1px solid #777; }
+.content {
+	padding:	0px;
+	overflow:	auto;
+}
+
+
+
+/*
+*	OUTER LAYOUT RESIZERS & TOGGLERS
+*/
+
+/* north-pane is not resizable
+.resizer-north-dragging ,
+.resizer-north:hover		{ background: url(../images/layout/resizable-n.gif) repeat-x center; }*/
+.resizer-south-dragging ,
+.resizer-south:hover		{ background: url(../images/layout/resizable-s-red.gif) repeat-x center; }
+	
+.resizer-west-dragging ,
+.resizer-west-open:hover	{ background: url(../images/layout/resizable-w-red.gif) repeat-y center; }
+.resizer-east-dragging ,
+.resizer-east-open:hover	{ background: url(../images/layout/resizable-e-red.gif) repeat-y center; }
+
+.resizer-west-open ,
+.resizer-east-open {
+	background-color: #999;
+	opacity: 0.1;
+	filter: alpha(opacity=10);
+}
+.resizer-west-open:hover ,
+.resizer-east-open:hover {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+.resizer-dragging {
+	/* see draggable.opacity option
+	opacity: 0.5;
+	filter: alpha(opacity=50);
+	*/
+}
+.resizer-dragging-limit	{ background: #FF3300 !important; }
+
+/*
+*	SIMPLE TOGGLER BUTTONS (used on Outer Layout North/South only)
+*/
+
+.toggler-north-open ,
+.toggler-south-closed 		{ background: url(../images/layout/toggle-up.gif) no-repeat center bottom; }
+.toggler-north-closed ,
+.toggler-south-open   		{ background: url(../images/layout/toggle-dn.gif) no-repeat center top; }
+/*
+.toggler-east-closed ,
+.toggler-west-open    { background: url(../images/layout/toggle-lt.gif) no-repeat center right; }
+.toggler-west-closed ,
+.toggler-east-open    { background: url(../images/layout/toggle-rt.gif) no-repeat center left; }
+*
+
+/*
+*	extJS-STYLE RESIZER/SLIDER-BAR (CLOSED)
+*/
+.resizer-west-closed ,
+.resizer-east-closed {
+	background: #D1E6FC url(../images/layout/D1E6FC_40x100_textures_10_dots_medium_90.png) 0 0 repeat;
+	border-top: 1px solid #777;
+	border-bottom: 1px solid #777;
+}
+.resizer-west-closed:hover ,
+.resizer-east-closed:hover {
+	background: pink;
+}
+
+/*
+*	NORTH PANE TOOLBAR & BUTTONS
+*/
+
+
+/*
+ *	extJS-STYLE TOGGLE & PIN BUTTONS
+ *
+ *	these 'extra buttons' are INSIDE the east/west panes
+ */
+
+/* CUSTOM pin/close buttons */
+span.button-pin ,
+span.button-close {
+	position:	absolute;
+	top:		0;
+	width: 		20px;
+	height:		20px;
+	z-index:	2;
+	display:	block;
+	cursor: 	pointer;
+}
+span.button-close-west	{ left:	 0; }
+span.button-close-east	{ right: 0; }
+span.button-pin-west	{ right: 1px; }
+span.button-pin-east	{ left:	 1px; }
+
+/* CUSTOM pin-buttons */
+span.button-pin-up 		  		{ background: url(../images/layout/pin-up-off.gif) no-repeat center; }
+span.button-pin-up:hover   		{ background: url(../images/layout/pin-up-on.gif)  no-repeat center; }
+span.button-pin-down 	  		{ background: url(../images/layout/pin-dn-off.gif) no-repeat center; }
+span.button-pin-down:hover 		{ background: url(../images/layout/pin-dn-on.gif)  no-repeat center; }
+
+/* CUSTOM close-buttons */
+span.button-close-west			{ background: url(../images/layout/go-lt-off.gif) no-repeat center; }
+span.button-close-west:hover	{ background: url(../images/layout/go-lt-on.gif)  no-repeat center; }
+span.button-close-east			{ background: url(../images/layout/go-rt-off.gif) no-repeat center; }
+span.button-close-east:hover	{ background: url(../images/layout/go-rt-on.gif)  no-repeat center; }
+
+/* STANDARD toggler-buttons - when the east/west panes are 'closed' */
+.toggler-west-closed		{ background: url(../images/layout/go-rt-off.gif) no-repeat center; }
+.toggler-west-closed:hover	{ background: url(../images/layout/go-rt-on.gif)  no-repeat center; }
+.toggler-east-closed		{ background: url(../images/layout/go-lt-off.gif) no-repeat center; }
+.toggler-east-closed:hover	{ background: url(../images/layout/go-lt-on.gif)  no-repeat center; }
